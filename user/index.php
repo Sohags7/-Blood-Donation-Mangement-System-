@@ -2,6 +2,54 @@
 <?php 
 
 	include 'include/header.php'; 
+	if(isset($_SESSION['user_id']) &&  !empty($_SESSION['user_id']))
+	{
+		if(isset($_POST['date']))
+		{
+			$showfrom =
+			' 
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Are you sure to update  your record?</strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <form target="" method="post">
+                <br>
+                <input type="hidden" name="user_ID" value="'.$_SESSION['user_id'].'">
+                <button type="submit" name="updateSave" class="btn btn-danger">Yes</button>
+
+                <button type="button" class="btn btn-info" data-dismiss="alert">
+                <span aria-hidden="true">Oops! No </span>
+                </button>      
+            </form>
+     </div>
+
+			';
+		}
+
+		if(isset($_POST['user_ID'])) {
+    $user_ID = $_POST['user_ID'];
+    $crntDate = date('Y-m-d');
+
+    $sql = "UPDATE donar SET save_life_data='$crntDate' WHERE id='$user_ID'";
+    if(mysqli_query($connection, $sql)) {
+    	
+    	$_SESSION['save_life_data']=$crntDate;
+
+        header("Location: index.php");
+        exit(); // Make sure to exit after redirecting
+    } else {
+        $submitError = '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Data not inserted try again.</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+        </button>
+         </div>';
+    }
+}
+
+
+
 	
 
 ?>
@@ -12,6 +60,23 @@
 		display: inline-block;
 		padding: 10px;
 	}
+
+	.name{
+		color: #e74c3c;
+		font-size: 22px;
+		font-weight: 700;
+	}
+	.donors_data{
+		background-color: white;
+		border-radius: 5px;
+		margin:20px 5px 0px 5px;
+		-webkit-box-shadow: 0px 2px 5px -2px rgba(89,89,89,0.95);
+		-moz-box-shadow: 0px 2px 5px -2px rgba(89,89,89,0.95);
+		box-shadow: 0px 2px 5px -2px rgba(89,89,89,0.95);
+		padding: 20px;
+	}
+
+
 </style>
 
 			<div class="container" style="padding: 60px 0;">
@@ -19,6 +84,12 @@
 				<div class="col-md-12 col-md-push-1">
 					<div class="panel panel-default" style="padding: 20px;">
 						<div class="panel-body">
+
+							 <?php 
+          
+          if(isset($submitError))echo $submitError;
+
+           ?>
 							
 								<div class="alert alert-danger alert-dismissable" style="font-size: 18px; display: none;">
     						
@@ -31,11 +102,78 @@
     							</div>
   							</div>
 							<div class="heading text-center">
-								<h3>Welcome </h3> <h1>User Name</h1>
+								<h3>Welcome </h3> <h1><?php
+                    if(isset($_SESSION['name'])) echo $_SESSION['name']; ?></h1>
 							</div>
+
 							<p class="text-center">Here you can mennage your account update your profile</p>
-							<button style="margin-top: 20px;" name="date" id="save_the_life" class="btn btn-lg btn-danger center-aligned ">Save The Life</button>
-							<div class="test-success text-center" id="data" style="margin-top: 20px;"><!-- Display Message here--></div>
+     <div class="test-success text-center" id="data" style="margin-top: 20px;"><?php if(isset($showfrom)) echo $showfrom; ?>
+
+
+     	<!-- Display Message here--></div>
+						
+
+
+
+
+							<?php 
+
+						$safeDate= $_SESSION['save_life_data'];
+						
+                 
+
+						if($safeDate==0)
+						{
+							echo '<form target="" method="post">
+							<button style="margin-top: 20px;" name="date" id="save_the_life" type="submit" class="btn btn-lg btn-danger center-aligned ">Save The Life</button>
+						    </form>';
+
+						}
+						else 
+						{
+							$start = date_create("$safeDate");
+							$end =date_create();
+
+							
+
+							$diff= date_diff($start,$end);
+							$diffMonth= $diff->m;
+							
+							
+							if($diffMonth>=3)
+							{
+								echo '<form target="" method="post">
+							<button style="margin-top: 20px;" name="date" id="save_the_life" type="submit" class="btn btn-lg btn-danger center-aligned ">Save The Life</button>
+						    </form>';
+                     
+							}
+							else 
+
+							{
+								echo '<div class="donors_data">
+                      <span class="name">Congratulation!!!</span>
+                      <span>You already safe the life.You will donate the blood after three months. We are very thanking full to you.</span>
+                     
+                      </div>';
+								
+							}
+
+
+						}
+
+
+							?>
+							
+							
+
+
+						
+
+				    
+
+							 
+				
+							
 							
 						</div>
 					</div>
@@ -45,6 +183,13 @@
 		
 		
 <?php
+}
+	else 
+	{
+		header("Location: ../index.php");
+
+	}
+	
 
 include 'include/footer.php'; 
 ?>
